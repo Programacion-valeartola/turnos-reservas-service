@@ -4,11 +4,13 @@ import com.valeartola.turnos.domain.exception.UserAlreadyExistsException;
 import com.valeartola.turnos.domain.model.Authority;
 import com.valeartola.turnos.domain.model.NewUserRegistration;
 import com.valeartola.turnos.domain.model.User;
+import com.valeartola.turnos.domain.ports.out.PasswordHasher;
 import com.valeartola.turnos.domain.ports.out.UserRepository;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -37,12 +39,27 @@ class RegisterUserUseCaseImplTest {
             users.add(saved);
             return saved;
         }
+
+        @Override
+        public Optional<User> findByLogin(String login) {
+            return users.stream().filter(u -> u.login().equals(login)).findFirst();
+        }
     }
 
     private final FakeUserRepository repository = new FakeUserRepository();
+
     // Hash falso y predecible para las pruebas
-    private final RegisterUserUseCaseImpl useCase =
-            new RegisterUserUseCaseImpl(repository, raw -> "hash(" + raw + ")");
+    private final RegisterUserUseCaseImpl useCase = new RegisterUserUseCaseImpl(repository, new PasswordHasher() {
+        @Override
+        public String hash(String raw) {
+            return "hash(" + raw + ")";
+        }
+
+        @Override
+        public boolean matches(String raw, String hash) {
+            return hash.equals("hash(" + raw + ")");
+        }
+    });
 
     private static NewUserRegistration registration(String login, String email) {
         return new NewUserRegistration(login, "clave1234", "Ana", "Gómez", email, null, null);

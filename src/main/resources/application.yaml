@@ -28,3 +28,7 @@ catalogo:
 
 server:
   port: 8082
+
+jwt:
+  secret: ${JWT_SECRET}
+  token-validity-seconds: 86400   # 24 horas
