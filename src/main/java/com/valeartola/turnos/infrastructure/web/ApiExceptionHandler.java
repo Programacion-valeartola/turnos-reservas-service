@@ -2,6 +2,7 @@ package com.valeartola.turnos.infrastructure.web;
 
 import com.valeartola.turnos.domain.exception.InvalidCredentialsException;
 import com.valeartola.turnos.domain.exception.UserAlreadyExistsException;
+import com.valeartola.turnos.domain.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -49,6 +50,14 @@ public class ApiExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, e.getMessage());
         problem.setTitle("Credenciales inválidas");
         problem.setProperty("code", InvalidCredentialsException.CODE);
+        return problem;
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ProblemDetail handleUserNotFound(UserNotFoundException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problem.setTitle("Usuario inexistente");
+        problem.setProperty("code", UserNotFoundException.CODE);
         return problem;
     }
 }
