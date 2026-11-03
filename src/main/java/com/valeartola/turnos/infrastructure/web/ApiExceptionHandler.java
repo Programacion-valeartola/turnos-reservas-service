@@ -1,5 +1,6 @@
 package com.valeartola.turnos.infrastructure.web;
 
+import com.valeartola.turnos.domain.exception.InvalidCredentialsException;
 import com.valeartola.turnos.domain.exception.UserAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -40,6 +41,14 @@ public class ApiExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "El cuerpo de la solicitud no es un JSON válido");
         problem.setTitle("Solicitud mal formada");
         problem.setProperty("code", "MALFORMED_REQUEST");
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, e.getMessage());
+        problem.setTitle("Credenciales inválidas");
+        problem.setProperty("code", InvalidCredentialsException.CODE);
         return problem;
     }
 }

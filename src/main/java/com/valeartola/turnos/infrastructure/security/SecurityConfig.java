@@ -13,8 +13,8 @@ import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Seguridad del servicio de turnos.
- * Por ahora: registro y salud públicos; todo lo demás cerrado.
- * La validación de JWT se incorpora con el inicio de sesión.
+ * Por ahora: registro, inicio de sesión y salud públicos; todo lo demás cerrado.
+ * La validación de JWT en los endpoints protegidos se incorpora en el issue siguiente.
  */
 @Configuration
 @EnableWebSecurity
@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/register", "/api/authenticate").permitAll()   // ← CAMBIO
                         .requestMatchers("/actuator/health", "/error").permitAll()
                         .anyRequest().authenticated());
         return http.build();

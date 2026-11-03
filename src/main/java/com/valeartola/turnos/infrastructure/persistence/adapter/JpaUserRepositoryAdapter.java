@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /** Adaptador de salida: usuarios en PostgreSQL mediante JPA. */
@@ -54,6 +55,12 @@ public class JpaUserRepositoryAdapter implements UserRepository {
         entity.setLastModifiedBy(SYSTEM);
         entity.setLastModifiedDate(now);
         return toDomain(repository.save(entity));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<User> findByLogin(String login) {
+        return repository.findOneByLogin(login).map(this::toDomain);
     }
 
     private User toDomain(UserEntity e) {
