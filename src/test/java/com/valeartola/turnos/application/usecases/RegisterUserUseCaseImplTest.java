@@ -7,10 +7,10 @@ import com.valeartola.turnos.domain.model.User;
 import com.valeartola.turnos.domain.ports.out.PasswordHasher;
 import com.valeartola.turnos.domain.ports.out.UserRepository;
 import org.junit.jupiter.api.Test;
-import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -47,6 +47,7 @@ class RegisterUserUseCaseImplTest {
     }
 
     private final FakeUserRepository repository = new FakeUserRepository();
+
     // Hash falso y predecible para las pruebas
     private final RegisterUserUseCaseImpl useCase = new RegisterUserUseCaseImpl(repository, new PasswordHasher() {
         @Override
@@ -59,6 +60,11 @@ class RegisterUserUseCaseImplTest {
             return hash.equals("hash(" + raw + ")");
         }
     });
+
+    private static NewUserRegistration registration(String login, String email) {
+        return new NewUserRegistration(login, "clave1234", "Ana", "Gómez", email, null, null);
+    }
+
     @Test
     void registraUnUsuarioActivoConRolUserYContraseñaHasheada() {
         User user = useCase.register(registration("ana", "ana@example.com"));
