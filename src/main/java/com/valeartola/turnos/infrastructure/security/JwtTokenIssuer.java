@@ -25,7 +25,7 @@ public class JwtTokenIssuer implements TokenIssuer {
 
     public static final String AUTHORITIES_CLAIM = "auth";
     public static final String USER_ID_CLAIM = "userId";
-    static final String ISSUER = "turnos-service";
+    public static final String ISSUER = "turnos-service";
 
     private final JwtEncoder encoder;
     private final Duration validity;
