@@ -1,8 +1,6 @@
 package com.valeartola.turnos.infrastructure.web;
 
-import com.valeartola.turnos.domain.exception.InvalidCredentialsException;
-import com.valeartola.turnos.domain.exception.UserAlreadyExistsException;
-import com.valeartola.turnos.domain.exception.UserNotFoundException;
+import com.valeartola.turnos.domain.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -58,6 +56,28 @@ public class ApiExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
         problem.setTitle("Usuario inexistente");
         problem.setProperty("code", UserNotFoundException.CODE);
+        return problem;
+    }
+
+    @ExceptionHandler(ProfessionalNotFoundException.class)
+    public ProblemDetail handleProfessionalNotFound(ProfessionalNotFoundException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problem.setProperty("code", ProfessionalNotFoundException.CODE);
+        return problem;
+    }
+
+    @ExceptionHandler(ProfessionalDisabledException.class)
+    public ProblemDetail handleProfessionalDisabled(ProfessionalDisabledException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        problem.setProperty("code", ProfessionalDisabledException.CODE);
+        return problem;
+    }
+
+    @ExceptionHandler(CatalogUnavailableException.class)
+    public ProblemDetail handleCatalogUnavailable(CatalogUnavailableException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,
+                "El catálogo no está disponible en este momento. Intente más tarde.");
+        problem.setProperty("code", CatalogUnavailableException.CODE);
         return problem;
     }
 }
