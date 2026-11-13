@@ -25,6 +25,8 @@ catedra:
 
 catalogo:
   base-url: ${CATALOGO_URL}
+  connect-timeout-ms: 3000
+  read-timeout-ms: 5000
 
 server:
   port: 8082
