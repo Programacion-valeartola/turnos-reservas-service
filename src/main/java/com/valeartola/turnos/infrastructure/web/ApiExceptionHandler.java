@@ -80,4 +80,19 @@ public class ApiExceptionHandler {
         problem.setProperty("code", CatalogUnavailableException.CODE);
         return problem;
     }
+
+    @ExceptionHandler(CatedraException.class)
+    public ProblemDetail handleCatedra(CatedraException e) {
+        HttpStatus status = switch (e.getError()) {
+            case UNAVAILABLE -> HttpStatus.SERVICE_UNAVAILABLE;
+            case UNEXPECTED -> HttpStatus.BAD_GATEWAY;
+            case SLOT_ALREADY_HELD, SLOT_ALREADY_RESERVED, RESERVATION_PROCESS_ALREADY_CONFIRMED,
+                 RESERVATION_NOT_CANCELLABLE -> HttpStatus.CONFLICT;
+            case PROFESSIONAL_NOT_FOUND, HOLD_NOT_FOUND, HOLD_EXPIRED, RESERVATION_NOT_FOUND -> HttpStatus.NOT_FOUND;
+            default -> HttpStatus.BAD_REQUEST;
+        };
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, e.getMessage());
+        problem.setProperty("code", e.getError().name());
+        return problem;
+    }
 }
