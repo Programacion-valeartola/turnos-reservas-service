@@ -47,4 +47,26 @@ class ReservationProcessTest {
         assertThatThrownBy(() -> held.withHold(new Hold("hold-2", "process-2", "HELD", Instant.now())))
                 .isInstanceOf(IllegalStateException.class);
     }
+
+    @Test
+    void alConfirmarElHoldPasaAEsperarElPedidoDeTelefono() {
+        ReservationProcess held = created.withHold(new Hold("hold-1", "process-1", "HELD", Instant.now()));
+
+        ReservationProcess awaiting = held.awaitingPhoneRequest();
+
+        assertThat(awaiting.status()).isEqualTo(ReservationStatus.AWAITING_PHONE_REQUEST);
+        assertThat(awaiting.confirmationAlreadySent()).isTrue();
+    }
+
+    @Test
+    void noSePuedeConfirmarSinHold() {
+        assertThatThrownBy(created::awaitingPhoneRequest).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void unProcesoFinalizadoNoPuedeVencer() {
+        ReservationProcess failed = created.failed("SLOT_ALREADY_RESERVED");
+
+        assertThatThrownBy(() -> failed.expired("HOLD_EXPIRED")).isInstanceOf(IllegalStateException.class);
+    }
 }
