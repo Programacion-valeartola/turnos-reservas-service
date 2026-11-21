@@ -26,4 +26,9 @@ public record User(
     public String toString() {
         return "User[id=" + id + ", login=" + login + ", authorities=" + authorities + "]";
     }
+
+    /** Identificador estable ante la cátedra: no expone login ni email. */
+    public String externalPatientId() {
+        return "user-" + id;
+    }
 }

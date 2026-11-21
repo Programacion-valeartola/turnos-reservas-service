@@ -81,6 +81,20 @@ public class ApiExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(ReservationNotFoundException.class)
+    public ProblemDetail handleReservationNotFound(ReservationNotFoundException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problem.setProperty("code", ReservationNotFoundException.CODE);
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidReservationStateException.class)
+    public ProblemDetail handleInvalidReservationState(InvalidReservationStateException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+        problem.setProperty("code", InvalidReservationStateException.CODE);
+        return problem;
+    }
+
     @ExceptionHandler(CatedraException.class)
     public ProblemDetail handleCatedra(CatedraException e) {
         HttpStatus status = switch (e.getError()) {
