@@ -56,7 +56,7 @@ public class StartReservationUseCaseImpl implements StartReservationUseCase {
 
         // 4. Hold en la cátedra con un identificador estable del paciente
         try {
-            Hold hold = catedra.createHold(professionalId, date, startTime, externalPatientId(user));
+            Hold hold = catedra.createHold(professionalId, date, startTime, user.externalPatientId());
             log.info("Hold {} creado para el proceso {}", hold.holdId(), process.id());
             return processes.save(process.withHold(hold));
         } catch (CatedraException e) {
@@ -69,8 +69,4 @@ public class StartReservationUseCaseImpl implements StartReservationUseCase {
         }
     }
 
-    /** Identificador estable del usuario ante la cátedra (no expone login ni email). */
-    private static String externalPatientId(User user) {
-        return "user-" + user.id();
-    }
 }

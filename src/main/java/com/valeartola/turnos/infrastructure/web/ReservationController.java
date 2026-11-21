@@ -1,5 +1,6 @@
 package com.valeartola.turnos.infrastructure.web;
 
+import com.valeartola.turnos.domain.ports.in.ConfirmHoldUseCase;
 import com.valeartola.turnos.domain.ports.in.StartReservationUseCase;
 import com.valeartola.turnos.infrastructure.web.dto.ReservationResponse;
 import com.valeartola.turnos.infrastructure.web.dto.StartReservationRequest;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReservationController {
 
     private final StartReservationUseCase startReservation;
+    private final ConfirmHoldUseCase confirmHold;
 
     /** El usuario sale del token ("sub"); el body solo trae el turno elegido. */
     @PostMapping
@@ -29,5 +32,11 @@ public class ReservationController {
                                      @Valid @RequestBody StartReservationRequest request) {
         return ReservationResponse.from(startReservation.start(
                 jwt.getSubject(), request.professionalId(), request.date(), request.startTime()));
+    }
+
+    /** Confirmación inicial del hold. Reintentarla es seguro. */
+    @PostMapping("/{id}/confirm")
+    public ReservationResponse confirm(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id) {
+        return ReservationResponse.from(confirmHold.confirm(jwt.getSubject(), id));
     }
 }
