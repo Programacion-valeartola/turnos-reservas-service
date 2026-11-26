@@ -69,4 +69,29 @@ class ReservationProcessTest {
 
         assertThatThrownBy(() -> failed.expired("HOLD_EXPIRED")).isInstanceOf(IllegalStateException.class);
     }
+
+    @Test
+    void unaReservaConfirmadaNoPuedeVencer() {
+        ReservationProcess confirmed = created
+                .withHold(new Hold("hold-1", "process-1", "HELD", Instant.now()))
+                .confirmed(8251L);
+
+        assertThat(confirmed.reservationId()).isEqualTo(8251L);
+        assertThatThrownBy(() -> confirmed.expired("HOLD_EXPIRED")).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void elPedidoDeTelefonoGuardaElEventIdParaResponder() {
+        ReservationProcess requested = created
+                .withHold(new Hold("hold-1", "process-1", "HELD", Instant.now()))
+                .phoneRequested("request-event-8a31", null);
+
+        assertThat(requested.status()).isEqualTo(ReservationStatus.PHONE_REQUESTED);
+        assertThat(requested.requestEventId()).isEqualTo("request-event-8a31");
+    }
+
+    @Test
+    void soloSePuedeCancelarUnaReservaConfirmada() {
+        assertThatThrownBy(() -> created.cancelled("motivo")).isInstanceOf(IllegalStateException.class);
+    }
 }
