@@ -12,4 +12,7 @@ public interface ReservationProcessRepository {
 
     /** Busca un proceso solo si pertenece al usuario indicado (propiedad por usuario). */
     Optional<ReservationProcess> findByIdAndUserId(Long id, Long userId);
+
+    /** Busca el proceso por el identificador que usa la cátedra en los eventos Kafka. */
+    Optional<ReservationProcess> findByReservationProcessId(String reservationProcessId);
 }

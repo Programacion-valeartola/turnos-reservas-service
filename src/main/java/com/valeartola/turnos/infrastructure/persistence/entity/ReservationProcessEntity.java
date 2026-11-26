@@ -1,4 +1,4 @@
-package com.valeartola.turnos.infrastructure.persistence;
+package com.valeartola.turnos.infrastructure.persistence.entity;
 
 import com.valeartola.turnos.domain.model.ReservationStatus;
 import jakarta.persistence.Column;

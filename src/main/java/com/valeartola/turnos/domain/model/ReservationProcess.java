@@ -51,11 +51,9 @@ public record ReservationProcess(
         return withStatus(ReservationStatus.AWAITING_PHONE_REQUEST, failureReason);
     }
 
-    /** Cualquier estado no final → EXPIRED (hold o proceso vencido). */
+    /** Proceso en curso → EXPIRED. Una reserva confirmada o un proceso finalizado no vencen. */
     public ReservationProcess expired(String reason) {
-        if (status.isFinal()) {
-            throw new IllegalStateException("El proceso ya está finalizado en " + status);
-        }
+        requireInProgress();
         return withStatus(ReservationStatus.EXPIRED, reason);
     }
 
@@ -70,6 +68,59 @@ public record ReservationProcess(
     private ReservationProcess withStatus(ReservationStatus newStatus, String reason) {
         return new ReservationProcess(id, userId, professionalId, appointmentDate, startTime,
                 newStatus, holdId, reservationProcessId, requestEventId, reservationId, expiresAt, reason);
+    }
+
+    /** La cátedra pide (o vuelve a pedir) el teléfono. Se guarda su eventId para responderle (#19). */
+    public ReservationProcess phoneRequested(String requestEventId, Instant newExpiresAt) {
+        requireOneOf(ReservationStatus.HELD, ReservationStatus.AWAITING_PHONE_REQUEST,
+                ReservationStatus.PHONE_REQUESTED);
+        return new ReservationProcess(id, userId, professionalId, appointmentDate, startTime,
+                ReservationStatus.PHONE_REQUESTED, holdId, reservationProcessId, requestEventId,
+                reservationId, newExpiresAt != null ? newExpiresAt : expiresAt, failureReason);
+    }
+
+    /** PHONE_SUBMITTED → PHONE_REQUESTED: la cátedra rechazó el teléfono; se puede reintentar hasta expiresAt. */
+    public ReservationProcess phoneRejected(String reason, Instant newExpiresAt) {
+        requireOneOf(ReservationStatus.PHONE_SUBMITTED, ReservationStatus.PHONE_REQUESTED);
+        return new ReservationProcess(id, userId, professionalId, appointmentDate, startTime,
+                ReservationStatus.PHONE_REQUESTED, holdId, reservationProcessId, requestEventId,
+                reservationId, newExpiresAt != null ? newExpiresAt : expiresAt, reason);
+    }
+
+    /** La cátedra confirmó la reserva. */
+    public ReservationProcess confirmed(Long confirmedReservationId) {
+        requireOneOf(ReservationStatus.HELD, ReservationStatus.AWAITING_PHONE_REQUEST,
+                ReservationStatus.PHONE_REQUESTED, ReservationStatus.PHONE_SUBMITTED);
+        return new ReservationProcess(id, userId, professionalId, appointmentDate, startTime,
+                ReservationStatus.CONFIRMED, holdId, reservationProcessId, requestEventId,
+                confirmedReservationId, expiresAt, null);
+    }
+
+    /** Proceso en curso → INVALID: la cátedra detectó una inconsistencia. */
+    public ReservationProcess invalid(String reason) {
+        requireInProgress();
+        return withStatus(ReservationStatus.INVALID, reason);
+    }
+
+    /** CONFIRMED → CANCELLED. */
+    public ReservationProcess cancelled(String reason) {
+        requireStatus(ReservationStatus.CONFIRMED);
+        return withStatus(ReservationStatus.CANCELLED, reason);
+    }
+
+    private void requireInProgress() {
+        if (status.isFinal() || status == ReservationStatus.CONFIRMED) {
+            throw new IllegalStateException("El proceso ya no está en curso: " + status);
+        }
+    }
+
+    private void requireOneOf(ReservationStatus... allowed) {
+        for (ReservationStatus s : allowed) {
+            if (status == s) {
+                return;
+            }
+        }
+        throw new IllegalStateException("Transición inválida desde " + status);
     }
 
     private void requireStatus(ReservationStatus expected) {

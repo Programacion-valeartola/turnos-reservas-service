@@ -3,7 +3,7 @@ package com.valeartola.turnos.infrastructure.persistence.adapter;
 
 import com.valeartola.turnos.domain.model.ReservationProcess;
 import com.valeartola.turnos.domain.ports.out.ReservationProcessRepository;
-import com.valeartola.turnos.infrastructure.persistence.ReservationProcessEntity;
+import com.valeartola.turnos.infrastructure.persistence.entity.ReservationProcessEntity;
 import com.valeartola.turnos.infrastructure.persistence.repository.ReservationProcessJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,6 +20,12 @@ public class JpaReservationProcessRepositoryAdapter implements ReservationProces
     @Override
     public ReservationProcess save(ReservationProcess process) {
         return toDomain(jpaRepository.save(toEntity(process)));
+    }
+
+    @Override
+    public Optional<ReservationProcess> findByReservationProcessId(String reservationProcessId) {
+        return jpaRepository.findByReservationProcessId(reservationProcessId)
+                .map(JpaReservationProcessRepositoryAdapter::toDomain);
     }
 
     @Override
