@@ -17,6 +17,14 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    listener:
+      ack-mode: record
 
 catalogo:
   api:
@@ -41,3 +49,10 @@ jwt:
 
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+
+
+turnos:
+  kafka:
+    actions-topic: ${KAFKA_ACTIONS_TOPIC:alumnos.turnos.acciones.proyecto-artola}
+    phone-topic: ${KAFKA_PHONE_TOPIC:catedra.turnos.telefono.proyecto-artola}
+    listener-enabled: ${KAFKA_LISTENER_ENABLED:true}
